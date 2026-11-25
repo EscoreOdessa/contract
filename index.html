@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Резюме договору · ESCORE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&display=swap">
+<style>
+/* Layout як у «ТЗ для замірника»: ліворуч завантаження скану (липка колонка), праворуч резюме договору як документ. Палітра ESCORE. */
+:root{
+  --bg:#f7f6f2; --surface:#ffffff; --sunk:#f0efe9; --line:#e2e0d8; --ink:#25261f; --muted:#6f6d64;
+  --accent:#1d7a56; --accent-ink:#ffffff; --accent-soft:#e2efe8; --input:#FFF2CC; --input-line:#e6d9a8;
+  --ai:#e4f1ea; --ai-line:#9fcbb3; --warn:#8a5a00; --warn-bg:#fff4dc; --err:#b3261e; --risk:#b3261e; --risk-bg:#fdeceb; --risk-line:#efb9b5;
+  --font:"Golos Text",-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#171a17; --surface:#20241f; --sunk:#1b1e1a; --line:#343a33; --ink:#e8e9e2; --muted:#a3a69b;
+  --accent:#5cc394; --accent-ink:#0f1a14; --accent-soft:#233a2e; --input:#3a3420; --input-line:#5b5130;
+  --ai:#1f3a2c; --ai-line:#3f7a5b; --warn:#f0c46b; --warn-bg:#3a2f17; --err:#ff8a80; --risk:#ff8a80; --risk-bg:#3a1f1d; --risk-line:#6b3330; color-scheme:dark}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:14px;line-height:1.45}
+header.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 20px;background:var(--surface);border-bottom:1px solid var(--line)}
+header.top h1{font-size:17px;margin:0;font-weight:600;text-wrap:balance}
+.badge{font-size:11px;letter-spacing:.06em;text-transform:uppercase;background:var(--warn-bg);color:var(--warn);padding:3px 8px;border-radius:999px;font-weight:600}
+.sub{color:var(--muted);font-size:12.5px}
+.layout{display:grid;grid-template-columns:minmax(300px,380px) minmax(0,1fr);gap:20px;max-width:1360px;margin:0 auto;padding-inline:20px;padding-block:18px 60px}
+@media (max-width:900px){.layout{grid-template-columns:minmax(0,1fr);padding-inline:16px}}
+aside.inp{position:sticky;top:12px;align-self:start;display:flex;flex-direction:column;gap:14px;max-height:calc(100vh - 24px);overflow:auto;padding-right:2px}
+@media (max-width:900px){aside.inp{position:static;max-height:none}}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.box h2{font-size:13px;margin:0;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+input[type=text],textarea{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:7px 9px;width:100%}
+textarea{resize:vertical;min-height:38px}
+input:focus,textarea:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{font:inherit;font-weight:600;background:var(--accent);color:var(--accent-ink);border:none;border-radius:8px;height:38px;padding:0 16px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.btn.sm{height:30px;padding:0 11px;font-size:12.5px}
+.btn:disabled{opacity:.5;cursor:default}
+.link{font:inherit;font-size:12px;color:var(--accent);background:none;border:none;padding:0;cursor:pointer;text-decoration:underline}
+.status{font-size:12.5px;color:var(--muted);min-height:18px}
+.status.err{color:var(--err)}
+.status a{color:var(--accent)}
+.note{font-size:12px;color:var(--muted)}
+.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;font-size:13px}
+.steps a{color:var(--accent)}
+.steps code{background:var(--sunk);padding:0 4px;border-radius:3px}
+.drop{border:2px dashed var(--line);border-radius:10px;padding:18px 14px;text-align:center;color:var(--muted);font-size:13px;cursor:pointer;display:flex;flex-direction:column;gap:6px;align-items:center}
+.drop b{color:var(--ink);font-weight:600}
+.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.drop input{display:none}
+.files{display:flex;flex-direction:column;gap:6px}
+.file{display:flex;align-items:center;gap:8px;background:var(--sunk);border:1px solid var(--line);border-radius:6px;padding:5px 4px 5px 10px;font-size:13px}
+.file span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file small{color:var(--muted)}
+.x{font:inherit;border:none;background:none;color:var(--muted);cursor:pointer;font-size:18px;line-height:1;padding:4px 8px}
+
+main.res{min-width:0;display:flex;flex-direction:column;gap:14px}
+.banner{background:var(--warn-bg);color:var(--warn);border-radius:10px;padding:10px 14px;font-size:13px}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px;border:1px solid var(--line)}
+.sheet{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:22px clamp(14px,3vw,30px);display:flex;flex-direction:column;gap:6px}
+.sheet h3{font-size:15px;margin:18px 0 6px;font-weight:600}
+.doctitle{text-align:center;margin-bottom:8px}
+.doctitle b{display:block;font-size:16px;letter-spacing:.02em}
+.doctitle span{font-size:13px;color:var(--muted)}
+.tw{overflow-x:auto}
+table.ck{width:100%;border-collapse:collapse}
+table.ck td{border:1px solid var(--line);padding:7px 9px;vertical-align:top}
+table.ck td.l{width:30%;font-weight:600;font-size:13px;background:var(--sunk)}
+table.ck td.l i{display:block;font-weight:400;color:var(--muted);font-size:11.5px;margin-top:3px}
+@media (max-width:620px){table.ck td{display:block;width:100%!important;border-bottom:none}table.ck tr{display:block;border-bottom:1px solid var(--line)}}
+.sheet textarea{background:var(--input);border-color:var(--input-line);overflow:hidden}
+.sheet textarea.ai{background:var(--ai);border-color:var(--ai-line)}
+.key{border:1px solid var(--ai-line);background:var(--accent-soft);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.key.risk{border-color:var(--risk-line);background:var(--risk-bg)}
+.key h4{margin:0;font-size:13px;letter-spacing:.04em;text-transform:uppercase}
+.key.risk h4{color:var(--risk)}
+.key textarea,.key textarea.ai{background:var(--surface)}
+.foot{font-size:11.5px;color:var(--muted);font-style:italic;margin-top:10px}
+
+/* PDF — завжди світлий «паперовий» вигляд */
+#pdfhost{position:fixed;left:-10000px;top:0;width:780px}
+.paper{--p-ink:#1f1f1b;--p-muted:#5d5b53;--p-line:#9a988f;--p-head:#eceae3;background:#fff;color:var(--p-ink);font-family:var(--font);font-size:11.5px;line-height:1.4;padding:6px 4px}
+.paper .pt{text-align:center;margin-bottom:10px}.paper .pt b{display:block;font-size:14px}.paper .pt span{font-size:11.5px;color:var(--p-muted)}
+.paper h5{font-size:12.5px;margin:12px 0 6px}
+.paper table{width:100%;border-collapse:collapse;margin-bottom:4px}
+.paper td{border:1px solid var(--p-line);padding:5px 7px;vertical-align:top}
+.paper td.l{width:30%;font-weight:600;background:var(--p-head)}
+.paper .keyp{border:1.5px solid var(--p-ink);padding:7px 9px;margin:8px 0}
+.paper .keyp ul{margin:4px 0 0;padding-left:16px}
+.paper .muted{color:var(--p-muted)}
+.paper tr,.paper .keyp{page-break-inside:avoid}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div>
+    <h1>Резюме договору · ESCORE <span class="badge" id="modeBadge">тест</span></h1>
+    <div class="sub">Скан договору → коротка таблиця: сторони, суми, строки, ризики → реєстр у Google Sheets</div>
+  </div>
+  <div class="row"><span class="sub" id="aiState"></span><button class="btn ghost sm" id="signin" hidden>Увійти через Google</button></div>
+</header>
+
+<div class="layout">
+  <aside class="inp">
+    <section class="box">
+      <h2>1. Скан договору</h2>
+      <label class="drop" id="drop">
+        <b>Перетягніть файл сюди або натисніть</b>
+        <span>PDF або фото сторінок (JPG, PNG). Можна кілька фото — по порядку сторінок.</span>
+        <input type="file" id="in_file" multiple accept="application/pdf,image/jpeg,image/png,image/webp">
+      </label>
+      <div class="files" id="files"></div>
+      <div class="note">До 20 МБ разом і до 100 сторінок. Фото краще знімати рівно, при денному світлі.</div>
+    </section>
+
+    <section class="box">
+      <div class="row">
+        <button class="btn" id="go">Розібрати договір</button>
+        <button class="btn ghost" id="stop" hidden>Зупинити</button>
+      </div>
+      <div class="status" id="st"></div>
+      <div class="note">Розбір займає 30–90 секунд. Результат можна виправити вручну перед збереженням.</div>
+    </section>
+
+    <section class="box" id="manual" hidden>
+      <h2>Розбір через чат claude.ai</h2>
+      <div class="note">Тестовий режим: автоматичний розбір ще не підключено. Зробіть розбір у звичайному чаті claude.ai (підійде і безкоштовний акаунт):</div>
+      <ol class="steps">
+        <li><b>Скопіюйте запит</b> — у ньому вже є інструкція для AI. Нічого дописувати не треба.<br><button type="button" class="btn sm" id="copyPrompt">Скопіювати запит</button> <span class="note" id="copySt"></span></li>
+        <li>Відкрийте <a href="https://claude.ai/new" target="_blank" rel="noopener">новий чат claude.ai</a>, <b>прикріпіть скан договору</b> (скріпка або перетягнути файл), вставте запит (Ctrl+V) і натисніть Enter.</li>
+        <li>Claude відповість блоком тексту, що починається з <code>{</code>. Скопіюйте відповідь повністю (кнопка копіювання під відповіддю) і вставте нижче.</li>
+      </ol>
+      <textarea id="promptOut" readonly hidden rows="4"></textarea>
+      <textarea id="in_ans" rows="4" placeholder="Вставте відповідь Claude (текст, що починається з {)"></textarea>
+      <div class="row"><button type="button" class="btn" id="applyAns">Застосувати відповідь</button></div>
+      <div class="status" id="ansSt"></div>
+    </section>
+  </aside>
+
+  <main class="res">
+    <div class="banner" id="banner" hidden></div>
+    <div class="toolbar">
+      <div class="legend">
+        <span><span class="sw" style="background:var(--ai);border-color:var(--ai-line)"></span>заповнено AI — перевірте за сканом</span>
+        <span><span class="sw" style="background:var(--input);border-color:var(--input-line)"></span>виправлено / введено вручну</span>
+      </div>
+      <div class="row">
+        <button class="btn ghost sm" id="clear">Очистити</button>
+        <button class="btn ghost sm" id="tsv" title="Рядок для вставки в будь-яку Google-таблицю чи Excel">Копіювати рядок</button>
+        <button class="btn ghost sm" id="pdf">PDF</button>
+        <button class="btn sm" id="save" hidden>Зберегти в реєстр</button>
+      </div>
+    </div>
+    <div class="status" id="outSt"></div>
+    <div class="sheet" id="sheet"></div>
+  </main>
+</div>
+<div id="pdfhost"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://accounts.google.com/gsi/client"></script>
+<script>
+/* ---------- налаштування ---------- */
+const CONFIG={
+  // URL веб-додатку Apps Script (Deploy → Web app → URL). Порожньо = тестовий режим через чат claude.ai
+  API_URL:"",
+  // Той самий OAuth-клієнт, що в smeta і «ТЗ для замірника» (проєкт ESCORE-Maps)
+  CLIENT_ID:"758495999284-fnsq0qf281d7vcd84hu7ri6eu2189psg.apps.googleusercontent.com",
+  // Як наша компанія називається в договорах — щоб AI визначив «нашу» сторону і ризики саме для нас
+  COMPANY:"ESCORE",
+  MAX_BYTES:20*1024*1024
+};
+const LIVE=!!CONFIG.API_URL;
+const DRAFT_KEY="contract-summary-draft";
+
+/* ---------- модель ---------- */
+// [ключ, підпис, підказка для AI, підказка в таблиці]
+const SECTIONS=[
+  ["Реквізити",[
+    ["type","Вид договору","вид договору: поставки, підряду, надання послуг, оренди тощо"],
+    ["number","Номер","номер договору"],
+    ["date","Дата укладення","ДД.ММ.РРРР"],
+    ["place","Місце укладення","місто"],
+    ["our_party","Наша сторона",`роль ${CONFIG.COMPANY} у договорі (Замовник, Виконавець, Постачальник, Покупець…) і як вона названа`],
+    ["counterparty","Контрагент","повна назва іншої сторони"],
+    ["counterparty_code","ЄДРПОУ / ІПН контрагента","код"],
+    ["signatories","Підписанти","хто підписав з кожного боку і на якій підставі (статут, довіреність)"],
+  ]],
+  ["Предмет і гроші",[
+    ["subject","Предмет","що саме поставляється / виконується, обсяг, специфікація"],
+    ["amount","Загальна сума","сума цифрами"],
+    ["currency","Валюта","UAH / USD / EUR"],
+    ["vat","ПДВ","з ПДВ / без ПДВ / не платник; сума ПДВ, якщо вказана"],
+    ["price_terms","Ціна: фіксована чи змінна","фіксована, прив'язка до курсу, індексація, право змінювати ціну"],
+    ["payment","Порядок оплати","аванс, етапи, відстрочка, строки платежів"],
+  ]],
+  ["Строки",[
+    ["term","Строк дії","з якого моменту діє і як довго"],
+    ["valid_until","Діє до","ДД.ММ.РРРР або умова"],
+    ["auto_renewal","Автопролонгація","так/ні, на який строк, як відмовитися"],
+    ["performance","Строки поставки / робіт","строки поставки, монтажу, введення в експлуатацію"],
+    ["acceptance","Приймання","акти, накладні, строк підписання, мовчазне приймання"],
+  ]],
+  ["Відповідальність і вихід",[
+    ["warranty","Гарантія","на обладнання і на роботи окремо, строки, умови втрати гарантії"],
+    ["penalties","Штрафи, пеня","за що, розмір, для кожної сторони"],
+    ["liability_cap","Обмеження відповідальності","ліміт, виключення збитків"],
+    ["termination","Розірвання","підстави, одностороння відмова, строк повідомлення"],
+    ["force_majeure","Форс-мажор","порядок, сертифікат ТПП, строк повідомлення, воєнний стан"],
+    ["disputes","Спори і право","суд, арбітраж, застосовне право"],
+    ["other","Інше важливе","конфіденційність, переуступка, страхування, нестандартні умови"],
+  ]],
+];
+const FIELDS=SECTIONS.flatMap(s=>s[1]);
+const LISTS=[["key_dates","Ключові дати"],["risks","Ризики для нас"],["missing","Не знайдено / нечитабельно"]];
+function blank(){const s={summary:"",key_dates:[],risks:[],missing:[],fileUrls:[],savedRow:0};FIELDS.forEach(f=>s[f[0]]="");return s;}
+let S=blank(),AI={},FILES=[];
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+/* ---------- приклад (вигаданий) ---------- */
+const EXAMPLE={
+  summary:"Ми купуємо в ТОВ «Сонячний Склад» 20 гібридних інверторів за 1 240 000 грн з ПДВ. Передоплата 50 %, решта — протягом 5 банківських днів після поставки. Поставка до 30.12.2026, гарантія на інвертори 5 років.",
+  type:"Договір поставки",number:"№ 47/П-26",date:"18.11.2026",place:"м. Одеса",
+  our_party:"Покупець — ESCORE (п. 1.1)",counterparty:"ТОВ «Сонячний Склад»",counterparty_code:"12345678",
+  signatories:"Від Постачальника — директор Петренко І. І. (статут); від Покупця — директор (статут)",
+  subject:"Гібридні інвертори 10 кВт, 20 шт., за Специфікацією № 1 (п. 1.2, Додаток 1)",
+  amount:"1 240 000,00",currency:"UAH",vat:"з ПДВ, ПДВ 206 666,67 грн (п. 3.1)",
+  price_terms:"Ціна в гривнях, але прив'язана до курсу USD НБУ на дату оплати: при зростанні курсу понад 3 % Постачальник має право перерахувати ціну (п. 3.3)",
+  payment:"50 % передоплата протягом 3 банківських днів після підписання; 50 % — протягом 5 банківських днів після поставки (п. 4.1–4.2)",
+  term:"З дати підписання до повного виконання зобов'язань (п. 11.1)",valid_until:"31.12.2027",
+  auto_renewal:"Ні",performance:"Поставка до 30.12.2026 на склад Покупця в Одесі (п. 5.1)",
+  acceptance:"За видатковою накладною; претензії щодо кількості — в день поставки, щодо якості — 10 днів (п. 6.2–6.3)",
+  warranty:"5 років на інвертори з дати поставки; гарантія втрачається при монтажі не сертифікованим персоналом (п. 7.1–7.3)",
+  penalties:"Покупець: пеня 0,5 % за кожен день прострочення оплати. Постачальник: пеня 0,1 % за прострочення поставки, не більше 5 % вартості (п. 8.2–8.3)",
+  liability_cap:"Відповідальність Постачальника обмежена 5 % ціни; упущена вигода не відшкодовується (п. 8.5)",
+  termination:"Одностороння відмова — з повідомленням за 30 днів (п. 10.2)",
+  force_majeure:"Підтвердження сертифікатом ТПП України протягом 15 днів; воєнний стан прямо не згаданий (п. 9)",
+  disputes:"Господарський суд за місцезнаходженням Постачальника (м. Київ), право України (п. 12.1)",
+  other:"Постачальник може переуступити права вимоги без згоди Покупця (п. 13.4)",
+  key_dates:["21.11.2026 — останній день передоплати 50 % (3 банк. дні від 18.11.2026)","30.12.2026 — крайній строк поставки","5 банк. днів після поставки — оплата решти 50 %","31.12.2027 — закінчення дії договору"],
+  risks:["Ціна може зрости при зростанні курсу USD понад 3 % (п. 3.3)","Пеня для нас 0,5 %/день — у 5 разів більша, ніж для Постачальника (п. 8.2)","Відповідальність Постачальника обмежена 5 % ціни (п. 8.5)","Спори — у суді за місцем Постачальника в Києві (п. 12.1)","Гарантія втрачається при монтажі не сертифікованим персоналом — перевірити, чи наші монтажники мають сертифікат (п. 7.3)"],
+  missing:["Не вказано, хто платить за доставку","Сторінка 4 частково нечитабельна (печатка поверх тексту п. 6.4)"]
+};
+
+/* ---------- рендер ---------- */
+function rowsFor(v){v=String(v||"");return Math.max(1,Math.min(14,v.split("\n").reduce((n,l)=>n+Math.max(1,Math.ceil(l.length/70)),0)));}
+function ta(key,val,extra){return `<textarea data-k="${key}" rows="${rowsFor(val)}" class="${AI[key]?"ai":""}" ${extra||""}>${esc(val)}</textarea>`;}
+function listVal(k){return (S[k]||[]).join("\n");}
+function render(){
+  const title=[S.type||"Договір",S.number,S.date?("від "+S.date):""].filter(Boolean).join(" ");
+  let h=`<div class="doctitle"><b>${esc(title)}</b><span>${esc(S.counterparty||"контрагент не визначений")}</span></div>`;
+  h+=`<div class="key"><h4>Коротко</h4>${ta("summary",S.summary,'placeholder="2–3 речення: хто, що, за скільки, до коли"')}</div>`;
+  h+=`<div class="key risk"><h4>⚠ Ризики для нас</h4>${ta("risks",listVal("risks"),'placeholder="кожен ризик з нового рядка"')}</div>`;
+  SECTIONS.forEach(([name,fs])=>{
+    h+=`<h3>${esc(name)}</h3><div class="tw"><table class="ck">`;
+    fs.forEach(f=>{h+=`<tr><td class="l">${esc(f[1])}</td><td>${ta(f[0],S[f[0]])}</td></tr>`;});
+    h+=`</table></div>`;
+  });
+  h+=`<h3>Ключові дати</h3>${ta("key_dates",listVal("key_dates"),'placeholder="ДД.ММ.РРРР — подія, кожна з нового рядка"')}`;
+  h+=`<h3>Не знайдено / нечитабельно</h3>${ta("missing",listVal("missing"),'placeholder="кожен пункт з нового рядка"')}`;
+  if(S.fileUrls&&S.fileUrls.length)h+=`<div class="note">Скан збережено: ${S.fileUrls.map((u,i)=>`<a href="${esc(safeUrl(u))}" target="_blank" rel="noopener">файл ${i+1}</a>`).join(", ")}</div>`;
+  h+=`<div class="foot">Резюме підготовлене AI за сканом договору. Суми, дати та номери пунктів звіряйте з оригіналом. Не є юридичним висновком.</div>`;
+  $("sheet").innerHTML=h;
+  $("sheet").querySelectorAll("textarea[data-k]").forEach(t=>t.addEventListener("input",()=>{
+    const k=t.dataset.k,isList=LISTS.some(l=>l[0]===k);
+    S[k]=isList?t.value.split("\n").map(x=>x.trim()).filter(Boolean):t.value;
+    if(AI[k]){delete AI[k];t.classList.remove("ai");}
+    t.rows=rowsFor(t.value);saveDraft();
+  }));
+}
+function safeUrl(u){u=String(u||"");return /^https:\/\//i.test(u)?u:"#";}
+function showBanner(msg){const b=$("banner");if(msg){b.textContent=msg;b.hidden=false;}else b.hidden=true;}
+function saveDraft(){try{localStorage.setItem(DRAFT_KEY,JSON.stringify({S,AI}));}catch(e){}}
+function loadDraft(){try{const d=JSON.parse(localStorage.getItem(DRAFT_KEY)||"null");if(d&&d.S){S=Object.assign(blank(),d.S);AI=d.AI||{};return true;}}catch(e){}return false;}
+
+/* ---------- відповідь AI → таблиця ---------- */
+function merge(r){
+  S=blank();AI={};window.__example=false;
+  const str=v=>v==null?"":(typeof v==="object"?JSON.stringify(v):String(v)).trim();
+  FIELDS.forEach(([k])=>{const v=str(r[k]);if(v){S[k]=v;AI[k]=1;}});
+  if(str(r.summary)){S.summary=str(r.summary);AI.summary=1;}
+  LISTS.forEach(([k])=>{
+    const a=Array.isArray(r[k])?r[k]:(r[k]?[r[k]]:[]);
+    S[k]=a.map(x=>x&&typeof x==="object"?[x.date,x.event||x.what||x.text].filter(Boolean).join(" — "):str(x)).filter(Boolean);
+    if(S[k].length)AI[k]=1;
+  });
+}
+function parseAnswer(t){
+  t=String(t||"").trim();const fence=t.match(/```(?:json)?\s*([\s\S]*?)```/);if(fence)t=fence[1];
+  const a=t.indexOf("{"),b=t.lastIndexOf("}");if(a<0||b<=a)throw new Error("no json");
+  return JSON.parse(t.slice(a,b+1));
+}
+
+/* ---------- запит до AI ---------- */
+function buildPrompt(){
+  const C=CONFIG.COMPANY;
+  const tpl={summary:"2–3 речення простою мовою: хто, що, за скільки, до коли"};
+  FIELDS.forEach(f=>tpl[f[0]]=f[2]);
+  tpl.key_dates=["ДД.ММ.РРРР — що має статися (оплата, поставка, закінчення дії, повідомлення…)"];
+  tpl.risks=["ризик для "+C+" одним реченням (п. X.X)"];
+  tpl.missing=["важлива умова, якої немає в договорі, або нечитабельне місце"];
+  return `Ти — досвідчений юрист українського підприємства ${C} (компанія-інсталятор сонячних електростанцій). До повідомлення прикладено скан договору (PDF або фото сторінок). Прочитай його повністю — разом із додатками, специфікаціями, печатками та рукописними позначками — і підготуй резюме для директора.
+
+Правила:
+- Пиши українською, навіть якщо договір іншою мовою.
+- Бери тільки те, що є в документі, нічого не вигадуй. Якщо умови немає — постав "" (а якщо вона важлива — додай у missing).
+- Якщо місце нечитабельне — напиши в полі «нечитабельно» і додай у missing, де саме.
+- Суми й дати переписуй точно, цифрами. Дати — у форматі ДД.ММ.РРРР.
+- Після кожної умови в дужках вказуй пункт договору, напр. «(п. 4.2)».
+- Пиши стисло: 1–3 речення на поле.
+- our_party — роль ${C} у договорі. Назва в договорі може відрізнятися (повна юридична назва, ФОП, інше написання). Якщо ${C} серед сторін не знайдено — напиши «не визначено» і в counterparty перелічи всі сторони.
+- risks — що невигідно або небезпечно саме для ${C}: односторонні права контрагента, нерівні штрафи, коротка гарантія чи нереальні строки, відсутність обмеження відповідальності, валютні ризики, автопролонгація, незручна підсудність, слабкий форс-мажор, переуступка без згоди тощо. Кожен ризик — одним реченням з номером пункту. Від найважливішого.
+- key_dates — усі конкретні дати й строки, які треба контролювати. Якщо строк відносний («3 банківські дні після підписання») і дату підписання відомо — обчисли дату і вкажи, від чого рахував.
+- Якщо прикладено не договір або документ неможливо прочитати — поверни JSON з порожніми полями і поясненням у missing.
+
+Відповідь — лише JSON, без пояснень і без markdown, точно за цією структурою (значення нижче — підказки, заміни їх):
+${JSON.stringify(tpl,null,1)}`;
+}
+
+/* ---------- файли ---------- */
+function fmtSize(b){return b>1048576?(b/1048576).toFixed(1)+" МБ":Math.max(1,Math.round(b/1024))+" КБ";}
+function renderFiles(){
+  $("files").innerHTML=FILES.map((f,i)=>`<div class="file"><span>${esc(f.name)}</span><small>${fmtSize(f.size)}</small><button class="x" data-i="${i}" title="Прибрати">×</button></div>`).join("");
+  $("files").querySelectorAll(".x").forEach(b=>b.onclick=()=>{FILES.splice(+b.dataset.i,1);renderFiles();});
+}
+function readB64(blob){return new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(",")[1]);r.onerror=no;r.readAsDataURL(blob);});}
+// Фото зменшуємо до 2000 px по довшій стороні: швидше вантажиться, дешевше, текст лишається читабельним
+async function shrinkImage(file){
+  try{
+    const bmp=await createImageBitmap(file);const k=Math.min(1,2000/Math.max(bmp.width,bmp.height));
+    if(k===1&&file.size<3e6)return file;
+    const c=document.createElement("canvas");c.width=Math.round(bmp.width*k);c.height=Math.round(bmp.height*k);
+    c.getContext("2d").drawImage(bmp,0,0,c.width,c.height);
+    return await new Promise(ok=>c.toBlob(b=>ok(b||file),"image/jpeg",.88));
+  }catch(e){return file;}
+}
+async function addFiles(list){
+  const bad=[];
+  for(const f of list){
+    if(f.type==="application/pdf"){FILES.push({name:f.name,mime:f.type,blob:f,size:f.size});}
+    else if(/^image\/(jpeg|png|webp)$/.test(f.type)){const b=await shrinkImage(f);FILES.push({name:f.name,mime:b.type||f.type,blob:b,size:b.size});}
+    else bad.push(f.name);
+  }
+  renderFiles();
+  if(bad.length)setSt("Не підтримується: "+bad.join(", ")+". Потрібен PDF або JPG/PNG (фото з iPhone збережіть як JPG).",true);
+  else if(FILES.length)setSt(LIVE?"Файл додано. Натисніть «Розібрати договір».":"Файл додано. Натисніть «Розібрати договір» — підготуємо запит для чату.");
+}
+const drop=$("drop");
+$("in_file").onchange=e=>{addFiles([...e.target.files]);e.target.value="";};
+["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add("over");}));
+["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove("over");}));
+drop.addEventListener("drop",e=>addFiles([...e.dataTransfer.files]));
+
+/* ---------- вхід Google і режими ---------- */
+let tokenClient=null,accessToken=null,tokenExpiry=0,userEmail="",pending=null,ctl_=null,timer=null;
+function tokenOk(){return accessToken&&Date.now()<tokenExpiry-60000;}
+function initMode(){
+  if(!LIVE){
+    $("aiState").textContent="Тестовий режим: розбір через чат claude.ai";
+    $("go").textContent="Підготувати запит";return;
+  }
+  $("modeBadge").hidden=true;$("save").hidden=false;
+  $("aiState").textContent="Увійдіть, щоб розбирати договори";$("signin").hidden=false;
+  if(!window.google||!google.accounts){$("aiState").textContent="Не завантажився вхід Google. Оновіть сторінку.";return;}
+  tokenClient=google.accounts.oauth2.initTokenClient({client_id:CONFIG.CLIENT_ID,scope:"openid email",callback:async resp=>{
+    if(resp.error){setSt("Вхід не виконано: "+resp.error,true);pending=null;return;}
+    accessToken=resp.access_token;tokenExpiry=Date.now()+((+resp.expires_in||3600)*1000);
+    try{const i=await fetch("https://www.googleapis.com/oauth2/v3/userinfo",{headers:{Authorization:"Bearer "+accessToken}}).then(r=>r.json());userEmail=i.email||"";}catch(e){}
+    $("aiState").textContent=userEmail||"Вхід виконано";$("signin").hidden=true;
+    const p=pending;pending=null;if(p)p();
+  }});
+}
+function withLogin(fn){
+  if(tokenOk())return fn();
+  if(!tokenClient){setSt("Вхід Google недоступний. Оновіть сторінку.",true);return;}
+  pending=fn;tokenClient.requestAccessToken({prompt:accessToken?"":"consent"});
+}
+$("signin").onclick=()=>tokenClient&&tokenClient.requestAccessToken({prompt:"consent"});
+window.addEventListener("load",initMode);
+
+function setSt(t,err){$("st").textContent=t;$("st").className="status"+(err?" err":"");}
+function setOut(html,err){$("outSt").innerHTML=html;$("outSt").className="status"+(err?" err":"");}
+const ERR={forbidden:"Ваш Google-акаунт не має доступу. Зверніться до адміністратора.",no_key:"На сервері не налаштовано ключ API.",
+  no_sheet:"На сервері не вказано таблицю-реєстр (SPREADSHEET_ID).",bad_request:"Порожній або некоректний запит.",
+  bad_file:"Непідтримуваний тип файлу. Потрібен PDF або JPG/PNG.",too_big:"Файли завеликі: разом до 20 МБ.",server:"Помилка сервера."};
+function errText(e){
+  if(e&&e.name==="AbortError")return "Зупинено.";
+  if(e&&e.code==="invalid_json")return "AI повернув відповідь у неочікуваному вигляді. Спробуйте ще раз.";
+  if(e&&e.code==="forbidden"){accessToken=null;return ERR.forbidden;}
+  if(e&&e.code==="anthropic")return "Помилка Claude API: "+(e.message||"невідома");
+  if(e&&ERR[e.code])return ERR[e.code]+(e.message?" ("+e.message+")":"");
+  return "Сервер не відповів. Перевірте інтернет і спробуйте ще раз.";
+}
+async function callApi(payload,signal){
+  const res=await fetch(CONFIG.API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body:JSON.stringify(Object.assign({token:accessToken},payload)),signal});
+  const d=await res.json();if(!d.ok)throw{code:d.error,message:d.message};return d;
+}
+
+/* ---------- розбір ---------- */
+function showManual(){$("manual").hidden=false;$("manual").scrollIntoView({behavior:"smooth",block:"start"});}
+$("copyPrompt").onclick=()=>{
+  const p=buildPrompt(),out=$("promptOut");out.value=p;
+  const fallback=()=>{out.hidden=false;out.focus();out.select();$("copySt").textContent="Не вдалося скопіювати автоматично — текст виділено, натисніть Ctrl+C.";};
+  try{navigator.clipboard.writeText(p).then(()=>{out.hidden=true;$("copySt").textContent="Скопійовано ✓";},fallback);}catch(e){fallback();}
+};
+$("applyAns").onclick=()=>{
+  const st=$("ansSt");
+  try{merge(parseAnswer($("in_ans").value));render();saveDraft();showBanner("");
+    st.className="status";st.textContent="Готово. Перевірте зелені поля за сканом.";$("in_ans").value="";setOut("");}
+  catch(e){st.className="status err";st.textContent="Не вдалося прочитати відповідь. Скопіюйте відповідь Claude повністю, від { до }.";}
+};
+$("go").onclick=()=>{
+  if(!LIVE){setSt("");showManual();$("copyPrompt").click();return;}
+  if(!FILES.length){setSt("Спершу додайте скан договору.",true);return;}
+  const total=FILES.reduce((n,f)=>n+f.size,0);
+  if(total>CONFIG.MAX_BYTES){setSt(ERR.too_big+" Зараз: "+fmtSize(total)+".",true);return;}
+  withLogin(parse);
+};
+async function parse(){
+  ctl_=new AbortController();$("go").disabled=true;$("stop").hidden=false;
+  const t0=Date.now();setSt("Читаю договір…");timer=setInterval(()=>setSt("Читаю договір… "+Math.round((Date.now()-t0)/1000)+" с"),1000);
+  try{
+    const files=[];for(const f of FILES)files.push({name:f.name,mime:f.mime,data:await readB64(f.blob)});
+    const d=await callApi({action:"parse",prompt:buildPrompt(),files},ctl_.signal);
+    let r;try{r=parseAnswer(d.text);}catch(e){throw{code:"invalid_json"};}
+    merge(r);S.fileUrls=d.fileUrls||[];render();saveDraft();showBanner("");setOut("");
+    setSt("Готово за "+Math.round((Date.now()-t0)/1000)+" с. Перевірте зелені поля і натисніть «Зберегти в реєстр».");
+  }catch(e){setSt(errText(e),true);}
+  finally{clearInterval(timer);$("go").disabled=false;$("stop").hidden=true;}
+}
+$("stop").onclick=()=>ctl_&&ctl_.abort();
+
+/* ---------- вивантаження ---------- */
+// Колонки реєстру: [заголовок, значення]
+function columns(){
+  const one=v=>String(v||"").replace(/\s*\n\s*/g,"; ").trim();
+  const c=[["Коротко",one(S.summary)]];
+  FIELDS.forEach(f=>c.push([f[1],one(S[f[0]])]));
+  c.push(["Ключові дати",S.key_dates.join("\n")],["Ризики",S.risks.join("\n")],["Не знайдено",S.missing.join("\n")],["Скан",(S.fileUrls||[]).join("\n")]);
+  return c;
+}
+function isEmpty(){return !S.summary&&FIELDS.every(f=>!S[f[0]]);}
+$("save").onclick=()=>{
+  if(window.__example){setOut("Це приклад. Спершу розберіть свій договір.",true);return;}
+  if(isEmpty()){setOut("Таблиця порожня — нема чого зберігати.",true);return;}
+  const b=$("save");
+  if(S.savedRow&&!b.dataset.confirm){b.dataset.confirm="1";b.textContent="Вже збережено. Ще раз?";setTimeout(()=>{b.textContent="Зберегти в реєстр";delete b.dataset.confirm;},4000);return;}
+  delete b.dataset.confirm;b.textContent="Зберегти в реєстр";
+  withLogin(async()=>{
+    b.disabled=true;setOut("Зберігаю…");
+    try{const d=await callApi({action:"save",columns:columns()});S.savedRow=d.row;saveDraft();
+      setOut(`Збережено в реєстр (рядок ${d.row}). <a href="${esc(safeUrl(d.sheetUrl))}" target="_blank" rel="noopener">Відкрити таблицю</a>`);}
+    catch(e){setOut(esc(errText(e)),true);}
+    b.disabled=false;
+  });
+};
+function copyText(t,okMsg){
+  const fallback=()=>{const a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();try{document.execCommand("copy");setOut(okMsg);}catch(e){setOut("Не вдалося скопіювати.",true);}a.remove();};
+  try{navigator.clipboard.writeText(t).then(()=>setOut(okMsg),fallback);}catch(e){fallback();}
+}
+$("tsv").onclick=e=>{
+  const c=columns(),cell=v=>String(v).replace(/[\t\r]/g," ").replace(/\n/g,"; ");
+  const head=c.map(x=>cell(x[0])).join("\t"),vals=c.map(x=>cell(x[1])).join("\t");
+  if(e.shiftKey)copyText(head+"\n"+vals,"Скопійовано заголовки і рядок — вставте в першу клітинку порожньої таблиці.");
+  else copyText(vals,"Рядок скопійовано — вставте в першу порожню клітинку колонки A реєстру. (Shift+клік — разом із заголовками.)");
+};
+$("clear").onclick=()=>{
+  const b=$("clear");
+  if(b.dataset.confirm){S=blank();AI={};FILES=[];window.__example=false;renderFiles();render();saveDraft();showBanner("");setOut("");setSt("");b.textContent="Очистити";delete b.dataset.confirm;return;}
+  b.dataset.confirm="1";b.textContent="Точно очистити?";setTimeout(()=>{b.textContent="Очистити";delete b.dataset.confirm;},3000);
+};
+
+/* ---------- PDF ---------- */
+function pv(v){v=String(v==null?"":v).trim();return v?esc(v).replace(/\n/g,"<br>"):`<span class="muted">—</span>`;}
+function paperHTML(){
+  const li=a=>a.length?`<ul>${a.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:`<div class="muted">—</div>`;
+  const title=[S.type||"Договір",S.number,S.date?("від "+S.date):""].filter(Boolean).join(" ");
+  return `<div class="paper">
+  <div class="pt"><b>РЕЗЮМЕ ДОГОВОРУ</b><span>${esc(title)} · ${esc(S.counterparty||"")}</span></div>
+  <div class="keyp"><b>Коротко</b><div>${pv(S.summary)}</div><br><b>Ризики для нас</b>${li(S.risks)}</div>
+  ${SECTIONS.map(([n,fs])=>`<h5>${esc(n)}</h5><table>${fs.map(f=>`<tr><td class="l">${esc(f[1])}</td><td>${pv(S[f[0]])}</td></tr>`).join("")}</table>`).join("")}
+  <h5>Ключові дати</h5>${li(S.key_dates)}
+  <h5>Не знайдено / нечитабельно</h5>${li(S.missing)}
+  <div class="muted" style="margin-top:10px"><i>Резюме підготовлене AI за сканом договору. Суми, дати та пункти звіряйте з оригіналом. Не є юридичним висновком.</i></div>
+  </div>`;
+}
+$("pdf").onclick=async()=>{
+  if(!window.html2pdf){setOut("Модуль PDF не завантажився. Оновіть сторінку.",true);return;}
+  $("pdf").disabled=true;setOut("Формую PDF…");
+  try{
+    const host=$("pdfhost");host.innerHTML=paperHTML();
+    const name=("Резюме_"+(S.number||"договору")+"_"+(S.counterparty||"")).replace(/[\\/:*?"<>|№«»]+/g," ").trim().replace(/\s+/g,"_")+".pdf";
+    await html2pdf().set({filename:name,margin:[10,9,12,9],image:{type:"jpeg",quality:.95},html2canvas:{scale:2,backgroundColor:"#ffffff"},jsPDF:{unit:"mm",format:"a4"},pagebreak:{mode:["css","legacy"],avoid:["tr",".keyp"]}}).from(host.firstElementChild).save();
+    host.innerHTML="";setOut("PDF збережено.");
+  }catch(e){setOut("Не вдалося створити PDF: "+esc((e&&e.message)||"помилка"),true);}
+  $("pdf").disabled=false;
+};
+
+/* ---------- старт ---------- */
+if(!loadDraft()){merge(EXAMPLE);window.__example=true;showBanner("Це вигаданий приклад, щоб було видно формат. Завантажте скан свого договору й натисніть «Розібрати договір».");}
+render();
+</script>
+</body>
+</html>
