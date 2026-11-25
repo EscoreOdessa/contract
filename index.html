@@ -456,10 +456,26 @@ $("stop").onclick=()=>ctl_&&ctl_.abort();
 // Колонки реєстру: [заголовок, значення]
 function columns(){
   const one=v=>String(v||"").replace(/\s*\n\s*/g,"; ").trim();
-  const c=[["Коротко",one(S.summary)]];
-  FIELDS.forEach(f=>c.push([f[1],one(S[f[0]])]));
-  c.push(["Ключові дати",S.key_dates.join("\n")],["Ризики",S.risks.join("\n")],["Не знайдено",S.missing.join("\n")],["Скан",scanLinks().join("\n")]);
-  return c;
+  // Ті самі колонки і в тому ж порядку, що в таблиці «Реєстр договорів». Повний текст умов — у PDF.
+  return [
+    ["Статус",""],
+    ["Контрагент",one(S.counterparty)],
+    ["ЄДРПОУ",one(S.counterparty_code)],
+    ["Вид договору",one(S.type)],
+    ["№ договору",one(S.number)],
+    ["Дата договору",one(S.date)],
+    ["Наша роль",one(S.our_party)],
+    ["Предмет",one(S.subject)],
+    ["Сума",one(S.amount)],
+    ["Валюта, ПДВ",[one(S.currency),one(S.vat)].filter(Boolean).join(", ")],
+    ["Оплата",one(S.payment)],
+    ["Діє до",one(S.valid_until)],
+    ["Ключові дати",S.key_dates.join("\n")],
+    ["Гарантія",one(S.warranty)],
+    ["Ризики",S.risks.join("\n")],
+    ["Скан",scanLinks().join("\n")],
+    ["Примітки",""]
+  ];
 }
 function isEmpty(){return !S.summary&&FIELDS.every(f=>!S[f[0]]);}
 $("save").onclick=()=>{
@@ -484,7 +500,7 @@ $("tsv").onclick=e=>{
   const c=columns(),cell=v=>String(v).replace(/[\t\r]/g," ").replace(/\n/g,"; ");
   const head=c.map(x=>cell(x[0])).join("\t"),vals=c.map(x=>cell(x[1])).join("\t");
   if(e.shiftKey)copyText(head+"\n"+vals,"Скопійовано заголовки і рядок — вставте в першу клітинку порожньої таблиці.");
-  else copyText(vals,"Рядок скопійовано — вставте в першу порожню клітинку колонки A реєстру. (Shift+клік — разом із заголовками.)");
+  else copyText(vals,"Рядок скопійовано — вставте в першу порожню клітинку колонки A (Статус) у «Реєстрі договорів».");
 };
 $("clear").onclick=()=>{
   const b=$("clear");
