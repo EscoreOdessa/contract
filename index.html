@@ -66,7 +66,9 @@ main.res{min-width:0;display:flex;flex-direction:column;gap:14px}
 .sheet h3{font-size:15px;margin:18px 0 6px;font-weight:600}
 .doctitle{text-align:center;margin-bottom:8px}
 .doctitle b{display:block;font-size:16px;letter-spacing:.02em}
-.doctitle span{font-size:13px;color:var(--muted)}
+.doctitle span{display:block;font-size:13px;color:var(--muted)}
+.doctitle a{color:var(--accent)}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--muted)}
 .tw{overflow-x:auto}
 table.ck{width:100%;border-collapse:collapse}
 table.ck td{border:1px solid var(--line);padding:7px 9px;vertical-align:top}
@@ -116,7 +118,11 @@ table.ck td.l i{display:block;font-weight:400;color:var(--muted);font-size:11.5p
         <input type="file" id="in_file" multiple accept="application/pdf,image/jpeg,image/png,image/webp">
       </label>
       <div class="files" id="files"></div>
-      <div class="note">До 20 МБ разом і до 100 сторінок. Фото краще знімати рівно, при денному світлі.</div>
+      <div class="note" id="dropNote">До 20 МБ разом і до 100 сторінок. Фото краще знімати рівно, при денному світлі.</div>
+      <label class="f note">Посилання на скан (Google Диск)
+        <input type="text" id="scanUrl" placeholder="https://drive.google.com/file/d/…" inputmode="url">
+      </label>
+      <div class="note" id="scanNote" hidden>У Google Диску: правий клік на файлі → «Поділитися» → «Копіювати посилання». Посилання потрапить у реєстр (колонка «Скан») і в PDF.</div>
     </section>
 
     <section class="box">
@@ -133,7 +139,7 @@ table.ck td.l i{display:block;font-weight:400;color:var(--muted);font-size:11.5p
       <div class="note">Тестовий режим: автоматичний розбір ще не підключено. Зробіть розбір у звичайному чаті claude.ai (підійде і безкоштовний акаунт):</div>
       <ol class="steps">
         <li><b>Скопіюйте запит</b> — у ньому вже є інструкція для AI. Нічого дописувати не треба.<br><button type="button" class="btn sm" id="copyPrompt">Скопіювати запит</button> <span class="note" id="copySt"></span></li>
-        <li>Відкрийте <a href="https://claude.ai/new" target="_blank" rel="noopener">новий чат claude.ai</a>, <b>прикріпіть скан договору</b> (скріпка або перетягнути файл), вставте запит (Ctrl+V) і натисніть Enter.</li>
+        <li>Відкрийте <a href="https://claude.ai/new" target="_blank" rel="noopener">новий чат claude.ai</a>, <b>прикріпіть скан договору</b> (скріпка → «Add from Google Drive» або просто перетягніть файл), вставте запит (Ctrl+V) і натисніть Enter.</li>
         <li>Claude відповість блоком тексту, що починається з <code>{</code>. Скопіюйте відповідь повністю (кнопка копіювання під відповіддю) і вставте нижче.</li>
       </ol>
       <textarea id="promptOut" readonly hidden rows="4"></textarea>
@@ -219,7 +225,7 @@ const SECTIONS=[
 ];
 const FIELDS=SECTIONS.flatMap(s=>s[1]);
 const LISTS=[["key_dates","Ключові дати"],["risks","Ризики для нас"],["missing","Не знайдено / нечитабельно"]];
-function blank(){const s={summary:"",key_dates:[],risks:[],missing:[],fileUrls:[],savedRow:0};FIELDS.forEach(f=>s[f[0]]="");return s;}
+function blank(){const s={summary:"",key_dates:[],risks:[],missing:[],fileUrls:[],scanUrl:"",savedRow:0};FIELDS.forEach(f=>s[f[0]]="");return s;}
 let S=blank(),AI={},FILES=[];
 
 const $=id=>document.getElementById(id);
@@ -256,7 +262,7 @@ function ta(key,val,extra){return `<textarea data-k="${key}" rows="${rowsFor(val
 function listVal(k){return (S[k]||[]).join("\n");}
 function render(){
   const title=[S.type||"Договір",S.number,S.date?("від "+S.date):""].filter(Boolean).join(" ");
-  let h=`<div class="doctitle"><b>${esc(title)}</b><span>${esc(S.counterparty||"контрагент не визначений")}</span></div>`;
+  let h=`<div class="doctitle"><b>${esc(title)}</b><span>${esc(S.counterparty||"контрагент не визначений")}</span>${scanLinks().length?`<span class="note">Скан: ${scanLinks().map((u,i)=>`<a href="${esc(safeUrl(u))}" target="_blank" rel="noopener">відкрити${scanLinks().length>1?" "+(i+1):""}</a>`).join(", ")}</span>`:""}</div>`;
   h+=`<div class="key"><h4>Коротко</h4>${ta("summary",S.summary,'placeholder="2–3 речення: хто, що, за скільки, до коли"')}</div>`;
   h+=`<div class="key risk"><h4>⚠ Ризики для нас</h4>${ta("risks",listVal("risks"),'placeholder="кожен ризик з нового рядка"')}</div>`;
   SECTIONS.forEach(([name,fs])=>{
@@ -276,6 +282,12 @@ function render(){
     t.rows=rowsFor(t.value);saveDraft();
   }));
 }
+function scanLinks(){const a=[...(S.fileUrls||[])];const u=String(S.scanUrl||"").trim();if(/^https:\/\//i.test(u)&&a.indexOf(u)<0)a.unshift(u);return a;}
+$("scanUrl").addEventListener("change",()=>{
+  const v=$("scanUrl").value.trim();
+  if(v&&!/^https:\/\//i.test(v)){setSt("Посилання має починатися з https://",true);return;}
+  S.scanUrl=v;saveDraft();render();setSt(v?"Посилання на скан збережено.":"");
+});
 function safeUrl(u){u=String(u||"");return /^https:\/\//i.test(u)?u:"#";}
 function showBanner(msg){const b=$("banner");if(msg){b.textContent=msg;b.hidden=false;}else b.hidden=true;}
 function saveDraft(){try{localStorage.setItem(DRAFT_KEY,JSON.stringify({S,AI}));}catch(e){}}
@@ -283,7 +295,7 @@ function loadDraft(){try{const d=JSON.parse(localStorage.getItem(DRAFT_KEY)||"nu
 
 /* ---------- відповідь AI → таблиця ---------- */
 function merge(r){
-  S=blank();AI={};window.__example=false;
+  const keepUrl=S.scanUrl;S=blank();AI={};window.__example=false;S.scanUrl=keepUrl||"";
   const str=v=>v==null?"":(typeof v==="object"?JSON.stringify(v):String(v)).trim();
   FIELDS.forEach(([k])=>{const v=str(r[k]);if(v){S[k]=v;AI[k]=1;}});
   if(str(r.summary)){S.summary=str(r.summary);AI.summary=1;}
@@ -365,7 +377,8 @@ function tokenOk(){return accessToken&&Date.now()<tokenExpiry-60000;}
 function initMode(){
   if(!LIVE){
     $("aiState").textContent="Тестовий режим: розбір через чат claude.ai";
-    $("go").textContent="Підготувати запит";return;
+    $("go").textContent="Підготувати запит";
+    $("drop").hidden=true;$("files").hidden=true;$("dropNote").hidden=true;$("scanNote").hidden=false;return;
   }
   $("modeBadge").hidden=true;$("save").hidden=false;
   $("aiState").textContent="Увійдіть, щоб розбирати договори";$("signin").hidden=false;
@@ -445,7 +458,7 @@ function columns(){
   const one=v=>String(v||"").replace(/\s*\n\s*/g,"; ").trim();
   const c=[["Коротко",one(S.summary)]];
   FIELDS.forEach(f=>c.push([f[1],one(S[f[0]])]));
-  c.push(["Ключові дати",S.key_dates.join("\n")],["Ризики",S.risks.join("\n")],["Не знайдено",S.missing.join("\n")],["Скан",(S.fileUrls||[]).join("\n")]);
+  c.push(["Ключові дати",S.key_dates.join("\n")],["Ризики",S.risks.join("\n")],["Не знайдено",S.missing.join("\n")],["Скан",scanLinks().join("\n")]);
   return c;
 }
 function isEmpty(){return !S.summary&&FIELDS.every(f=>!S[f[0]]);}
@@ -475,7 +488,7 @@ $("tsv").onclick=e=>{
 };
 $("clear").onclick=()=>{
   const b=$("clear");
-  if(b.dataset.confirm){S=blank();AI={};FILES=[];window.__example=false;renderFiles();render();saveDraft();showBanner("");setOut("");setSt("");b.textContent="Очистити";delete b.dataset.confirm;return;}
+  if(b.dataset.confirm){S=blank();AI={};FILES=[];$("scanUrl").value="";window.__example=false;renderFiles();render();saveDraft();showBanner("");setOut("");setSt("");b.textContent="Очистити";delete b.dataset.confirm;return;}
   b.dataset.confirm="1";b.textContent="Точно очистити?";setTimeout(()=>{b.textContent="Очистити";delete b.dataset.confirm;},3000);
 };
 
@@ -485,7 +498,7 @@ function paperHTML(){
   const li=a=>a.length?`<ul>${a.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:`<div class="muted">—</div>`;
   const title=[S.type||"Договір",S.number,S.date?("від "+S.date):""].filter(Boolean).join(" ");
   return `<div class="paper">
-  <div class="pt"><b>РЕЗЮМЕ ДОГОВОРУ</b><span>${esc(title)} · ${esc(S.counterparty||"")}</span></div>
+  <div class="pt"><b>РЕЗЮМЕ ДОГОВОРУ</b><span>${esc(title)} · ${esc(S.counterparty||"")}</span>${scanLinks().length?`<span>Скан: ${scanLinks().map(esc).join(", ")}</span>`:""}</div>
   <div class="keyp"><b>Коротко</b><div>${pv(S.summary)}</div><br><b>Ризики для нас</b>${li(S.risks)}</div>
   ${SECTIONS.map(([n,fs])=>`<h5>${esc(n)}</h5><table>${fs.map(f=>`<tr><td class="l">${esc(f[1])}</td><td>${pv(S[f[0]])}</td></tr>`).join("")}</table>`).join("")}
   <h5>Ключові дати</h5>${li(S.key_dates)}
@@ -507,6 +520,7 @@ $("pdf").onclick=async()=>{
 
 /* ---------- старт ---------- */
 if(!loadDraft()){merge(EXAMPLE);window.__example=true;showBanner("Це вигаданий приклад, щоб було видно формат. Завантажте скан свого договору й натисніть «Розібрати договір».");}
+$("scanUrl").value=S.scanUrl||"";
 render();
 </script>
 </body>
